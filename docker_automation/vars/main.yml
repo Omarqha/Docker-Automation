@@ -1,0 +1,16 @@
+# vars/main.yml
+
+# Docker Image Information
+docker_image_name: "hello-world"
+docker_image_tag: "latest"
+
+# Docker Registry Information
+docker_registry: "docker.io"
+docker_registry_user: "<docker_user>"
+docker_registry_password: "<docker_password>"
+
+# Path to the Docker tar file on EC1
+docker_image_tar: "/images/hello-world.tar"
+
+# EC2 Instance Information
+ec2_instance_host: "ec2-instance"

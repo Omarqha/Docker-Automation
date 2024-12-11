@@ -1,0 +1,34 @@
+---
+- name: Load, tag, and push Docker image to registry
+  hosts: ec2_instances
+  become: yes
+  vars_files:
+    - ../vars/main.yml
+
+  tasks:
+    - name: Ensure Docker is installed
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Load Docker image from tar file
+      command: docker load < "{{ docker_image_tar }}"
+      args:
+        chdir: "/tmp"
+
+    - name: Tag the Docker image
+      command: docker tag "{{ docker_image_name }}" "{{ docker_registry }}/{{ docker_image_name }}:{{ docker_image_tag }}"
+      register: docker_tag_output
+
+    - name: Push the Docker image to registry
+      docker_image:
+        name: "{{ docker_registry }}/{{ docker_image_name }}:{{ docker_image_tag }}"
+        push: yes
+        login:
+          username: "{{ docker_registry_user }}"
+          password: "{{ docker_registry_password }}"
+
+    - name: Verify the image has been pushed
+      command: docker images "{{ docker_registry }}/{{ docker_image_name }}:{{ docker_image_tag }}"
+      register: docker_image_check
+      failed_when: "'{{ docker_registry }}/{{ docker_image_name }}' not in docker_image_check.stdout"
